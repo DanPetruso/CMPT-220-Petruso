@@ -1,0 +1,11 @@
+# Compiled class file
+*.class
+*.ini
+<<<<<<< HEAD
+out/
+*.iml
+.metadata/
+.idea/
+=======
+*.bak
+>>>>>>> origin/master
