@@ -38,6 +38,9 @@ public class WimHofTracker extends Application{
 		window.setTitle("Wim Hof Progress Tracker");
 		
 		Button startSession = new Button("Start Session");
+		Session session = new Session();
+		startSession.setOnAction(e -> window.setScene(session.setSceneClock()));
+		
 		Button checkResults = new Button("Check Results");
 		Button help = new Button("Help");
 		
@@ -49,6 +52,5 @@ public class WimHofTracker extends Application{
 		Scene scene = new Scene(layout, 300, 200);
 		window.setScene(scene);
 		window.show();
-		
 	}
 }
