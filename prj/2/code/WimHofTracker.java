@@ -11,13 +11,14 @@ import java.sql.*;
 
 public class WimHofTracker extends Application{
 	
-	Stage window;
+	public static Stage window;
+	public static Scene scene;
 	
 	/*
 	private static Connection con;
 	private static boolean hasData = false;
 	
-	public ResultSet displayUsers() {
+	public ResultSet display() {
 		if(con == null) {
 			getConnection();
 		}
@@ -42,14 +43,17 @@ public class WimHofTracker extends Application{
 		startSession.setOnAction(e -> window.setScene(session.setSceneClock()));
 		
 		Button checkResults = new Button("Check Results");
+
 		Button help = new Button("Help");
+		Help helpClass = new Help();
+		help.setOnAction(e -> window.setScene(helpClass.helpScene()));
 		
 		Label welcome = new Label("Welcome to the Wim Hof Activity Tracker");
 		
 		VBox layout = new VBox();
 		layout.getChildren().addAll(welcome, startSession, checkResults, help);
 		
-		Scene scene = new Scene(layout, 300, 200);
+		scene = new Scene(layout, 300, 200);
 		window.setScene(scene);
 		window.show();
 	}
