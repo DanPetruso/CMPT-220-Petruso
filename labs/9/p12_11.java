@@ -21,6 +21,6 @@ public class p12_11 {
         in.close();
 
         inFile.delete();
-        tmpFile.renameTo(new File("p12_11.txt"));
+        tmpFile.renameTo(new File("p12_11.txt")); // JA: Should be renamed to the input file
     }
 }
