@@ -9,59 +9,99 @@ import javafx.scene.layout.VBox;
 
 public class Session {
 
-	Button start, stop;
 	Label stopwatchTime;
+	static String[] times = new String[3];
+
+	private final Timer timer = new Timer("Stopwatch");
+	private final StopwatchTimerTask task = new StopwatchTimerTask();
 	
 	public Scene setSceneClock() {
 		
 		VBox layout = new VBox();
-		start = new Button("Start");
-		stop = new Button("Stop");
-		
-		Timer timer = new Timer("Stopwatch");
-		StopwatchTimerTask task = new StopwatchTimerTask();
+		Button start = new Button("Start");
+		Button stop = new Button("Stop");
 
 		Button reset = new Button("Reset");
 		Button back = new Button("Back");
+		Button saveTime = new Button("Save Time");
 		
-		start.setOnAction(e -> timer.scheduleAtFixedRate(task, 0, 1000));
+		start.setOnAction(e -> {
+			try {
+				timer.scheduleAtFixedRate(task, 0, 1000);
+			} catch (IllegalStateException e1) {
+				task.resume();
+			}
+		});
 		stop.setOnAction(e -> {
 			long timeToSave = task.getSeconds();
-			task.cancel();
+			task.pause();
 		});
+
+		saveTime.setOnAction(e -> storeTime(task));
 		back.setOnAction(e -> WimHofTracker.window.setScene(WimHofTracker.scene));
 
 		reset.setOnAction(e -> task.resetTime());
 		
-		//TODO PUT timeToSave INTO SQLITE
-		
 		stopwatchTime = new Label("0:00");
 		
-		layout.getChildren().addAll(start, stop, stopwatchTime, reset, back);
+		layout.getChildren().addAll(start, stop, stopwatchTime, reset, back, saveTime);
 		
 		Scene scene = new Scene(layout, 300, 200);
 		return scene;
 	}
 
+	public static void storeTime(StopwatchTimerTask task){
+		if(ConfirmBox.display("Confirm", "Are you sure you want to save this time?")){
+			boolean filledArray = true;
+			for(int i = 0; i < times.length; i++){
+				if(times[i] == null){
+					times[i] = task.getSeconds() + "";
+					filledArray = false;
+				}
+			}
+
+			if(filledArray){
+				WimHofTracker.insertData(times);
+			}
+
+		}
+	}
+
+	public void stop() {
+		System.out.println("Stopping session");
+		timer.cancel();
+	}
 
 	private class StopwatchTimerTask extends TimerTask {
 
+		private boolean paused;
 		private long seconds = 0;
-		
+
 		@Override
 		public void run() {
-			seconds++;
-			long minutes = seconds / 60;
-			long leftoverSeconds = seconds % 60;
-			String timer = minutes + ":" + leftoverSeconds;
-			
-			Platform.runLater(() -> {
-				stopwatchTime.setText(timer);
-			});
+			if (!paused) {
+				seconds++;
+				long minutes = seconds / 60;
+				long leftoverSeconds = seconds % 60;
+				String timer = minutes + ":" + leftoverSeconds;
+
+				Platform.runLater(() -> {
+					stopwatchTime.setText(timer);
+				});
+			}
+		}
+
+		public void pause() {
+			paused = true;
+		}
+
+		public void resume() {
+			paused = false;
 		}
 
 		public void resetTime(){
 			seconds = 0;
+			Platform.runLater(() -> stopwatchTime.setText("0:00"));
 		}
 		
 		public long getSeconds() {

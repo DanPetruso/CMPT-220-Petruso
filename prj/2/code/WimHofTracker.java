@@ -13,21 +13,67 @@ public class WimHofTracker extends Application{
 	
 	public static Stage window;
 	public static Scene scene;
-	
-	/*
-	private static Connection con;
-	private static boolean hasData = false;
-	
-	public ResultSet display() {
-		if(con == null) {
-			getConnection();
+	private Session session;
+
+	public static void connect(){
+	    Connection conn = null;
+	    try{
+			String url = "jdbc:sqlite:";
+			conn = DriverManager.getConnection(url);
+			System.out.println("Connection to SQLite database established.");
+        } catch (SQLException e){
+			System.out.println(e);
+		} finally {
+	    	try{
+	    		if(conn != null)
+	    			conn.close();
+			} catch (SQLException e){
+				System.out.println(e);
+			}
 		}
-		
-		Statement state = con.createStatement();
-		ResultSet res = state.executeQuery("SELECT round1, round2, round3, pushups, coldShower FROM user");
-		return res;
+    }
+
+    public static void createNewDatabase(String fileName){
+		String url = "jdbc:sqlite:" + fileName;
+		try (Connection conn = DriverManager.getConnection(url)){
+			if(conn != null){
+				DatabaseMetaData meta = conn.getMetaData();
+				System.out.println("Driver name: " + meta.getDriverName());
+				System.out.println("New Database created");
+			}
+		} catch (SQLException e){
+			e.printStackTrace();
+		}
+
+		String sql = "CREATE TABLE IF NOT EXISTS progress " +
+				"(day integer PRIMARY KEY, " +
+				"round1 text NOT NULL, " +
+				"round2 text NOT NULL, " +
+				"round3 text NOT NULL);";
+
+		try (Connection conn = DriverManager.getConnection(url);
+			 Statement stmt = conn.createStatement()){
+			stmt.execute(sql);
+
+		} catch (SQLException e){
+			e.printStackTrace();
+		}
 	}
-	*/
+
+	public static void insertData(String[] times){
+		String url = "jdbc:sqlite:progress.sqlite3";
+		try (Connection conn = DriverManager.getConnection(url)){
+			PreparedStatement stmt = conn.prepareStatement("INSERT INTO progress" +
+					"(round1,round2,round3) VALUES (?,?,?)");
+			stmt.setString(1, times[0]);
+			stmt.setString(2, times[1]);
+			stmt.setString(3, times[2]);
+			stmt.executeUpdate();
+
+		} catch(SQLException e){
+			e.printStackTrace();
+		}
+	}
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -35,11 +81,14 @@ public class WimHofTracker extends Application{
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		//connect();
+		createNewDatabase("progress.sqlite3");
+
 		window = primaryStage;
 		window.setTitle("Wim Hof Progress Tracker");
 		
 		Button startSession = new Button("Start Session");
-		Session session = new Session();
+		session = new Session();
 		startSession.setOnAction(e -> window.setScene(session.setSceneClock()));
 		
 		Button checkResults = new Button("Check Results");
@@ -57,4 +106,9 @@ public class WimHofTracker extends Application{
 		window.setScene(scene);
 		window.show();
 	}
+
+    @Override
+    public void stop() throws Exception {
+        session.stop();
+    }
 }
