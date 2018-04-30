@@ -1,5 +1,6 @@
-public class p13_9 {
 
+public class p13_9 {
+// JA: ?
 }
 
 class Circle extends GeometricObject implements Comparable<Circle> {
