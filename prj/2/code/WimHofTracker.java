@@ -15,24 +15,6 @@ public class WimHofTracker extends Application{
 	public static Scene scene;
 	private Session session;
 
-	public static void connect(){
-	    Connection conn = null;
-	    try{
-			String url = "jdbc:sqlite:";
-			conn = DriverManager.getConnection(url);
-			System.out.println("Connection to SQLite database established.");
-        } catch (SQLException e){
-			System.out.println(e);
-		} finally {
-	    	try{
-	    		if(conn != null)
-	    			conn.close();
-			} catch (SQLException e){
-				System.out.println(e);
-			}
-		}
-    }
-
     public static void createNewDatabase(String fileName){
 		String url = "jdbc:sqlite:" + fileName;
 		try (Connection conn = DriverManager.getConnection(url)){
@@ -81,7 +63,6 @@ public class WimHofTracker extends Application{
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		//connect();
 		createNewDatabase("progress.sqlite3");
 
 		window = primaryStage;
@@ -92,6 +73,7 @@ public class WimHofTracker extends Application{
 		startSession.setOnAction(e -> window.setScene(session.setSceneClock()));
 		
 		Button checkResults = new Button("Check Results");
+		checkResults.setOnAction(e -> CheckResults.check());
 
 		Button help = new Button("Help");
 		Help helpClass = new Help();

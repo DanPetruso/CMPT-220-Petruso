@@ -11,6 +11,7 @@ public class Session {
 
 	Label stopwatchTime;
 	static String[] times = new String[3];
+	static boolean roundFin = false;
 
 	private final Timer timer = new Timer("Stopwatch");
 	private final StopwatchTimerTask task = new StopwatchTimerTask();
@@ -51,19 +52,28 @@ public class Session {
 	}
 
 	public static void storeTime(StopwatchTimerTask task){
-		if(ConfirmBox.display("Confirm", "Are you sure you want to save this time?")){
-			boolean filledArray = true;
-			for(int i = 0; i < times.length; i++){
-				if(times[i] == null){
-					times[i] = task.getSeconds() + "";
-					filledArray = false;
+		if(roundFin){
+			AlertBox.display("Day finished", "You already input three rounds for the day." +
+					"\nCome back tomorrow and do it again! :)");
+
+		}
+		else {
+			if(ConfirmBox.display("Confirm", "Are you sure you want to save this time?")){
+				boolean filledArray = true;
+				for(int i = 0; i < times.length; i++){
+					if(times[i] == null){
+						times[i] = task.getSeconds() + "";
+						filledArray = false;
+						System.out.println("Saved: " + times[i]);
+						break;
+					}
+				}
+
+				if(filledArray){
+					WimHofTracker.insertData(times);
+					roundFin = true;
 				}
 			}
-
-			if(filledArray){
-				WimHofTracker.insertData(times);
-			}
-
 		}
 	}
 
